@@ -109,6 +109,7 @@
 %}
 %s HDR0 HDR1 DESC ACCL0 TAGL0 TAGL1 LCKL0 LCKL1 REV0 REV1 REV2 ATR0 ATR1
 %s REV3 REV4 RLST XREV FEND SRV0 SRVA SRVB SRV1 SRV2 SRV3 SRV4 SRV5 SRV6 PWF0
+%s REVSKIP
 %option noyywrap nounput
 num     [0-9.]+
 special [$,.:;@]
@@ -452,6 +453,9 @@ void begin(char *s, size_t l)
 <REV3>.*\n              BEGIN REV4; assert(!rfile.revt->log); rfile.revt->log = yytext;
 <RLST>\ \ {num};        addrl(getstr(yyleng-3, yytext+2));
 <RLST>\n                BEGIN REV3;
+<REV4>The\ changelog\ prior\ to\ shifting.*\n BEGIN REVSKIP; *yytext = '\0'; if (!rfile.revt->log) rfile.revt->log = yytext;
+<REVSKIP>={77}\n      BEGIN REV0; *yytext = '\0'; if (!rfile.revt->log) rfile.revt->log = yytext;
+<REVSKIP>.*\n		*yytext = '\0'; /* do nothing */
 <REV4>.*\n              if (!rfile.revt->log) rfile.revt->log = yytext;
 <FEND><<EOF>>           return EOF;
 
