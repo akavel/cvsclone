@@ -94,6 +94,7 @@
 #include <resolv.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include <errno.h>
 #include <ctype.h>
@@ -1039,6 +1040,14 @@ static int is_done(const char *filename)
 	return !remaining;
 }
 
+static const char *current_file;
+static void unlink_current_file(int dummy)
+{
+	if (current_file)
+		unlink(current_file);
+	exit(1);
+}
+
 void gen()
 {
 	size_t l = strlen(cvsdir);
@@ -1064,6 +1073,7 @@ void gen()
 	fi = rfile.source + l + 1;
 	if (is_done(fi))
 		return;
+	current_file = fi;
 	rcsfiop = fopen(fi, "w");
 
 	fprintf(rcsfiop, "head\t%s;\n", rfile.head.num ? rfile.head.num : "");
@@ -1112,6 +1122,7 @@ void gen()
 	queue = NULL;
 	fprintf(stderr, "\n");
 	fclose(rcsfiop);
+	current_file = NULL;
 }
 char *home;
 int main(int argc, char *argv[])
@@ -1151,6 +1162,7 @@ int main(int argc, char *argv[])
 		"pass: %.1s\n", passfile,
 		cvsroot, cvspass);
 
+	signal(SIGINT, unlink_current_file);
 	if (!(srv = srvopen())) {
 		fprintf(stderr, "server connection failed or bad cvsroot\n");
 #ifndef XTEST
