@@ -588,7 +588,7 @@ char *strfix(char *s)
 		s[l-1] = '\0';
 	return s;	
 }
-FILE *srv;
+FILE *srv, *rlog_input;
 
 FILE *srvopen(void)
 {
@@ -1129,7 +1129,13 @@ int main(int argc, char *argv[])
 {
 	unsigned long siz;
 	char *buf, *passfile, *fn0, *fn1, *fn2;
-	
+
+	if (argc == 5 || argc == 3)
+		if (!(rlog_input = fopen(argv[--argc], "rb"))) {
+			fprintf(stderr, "Invalid rlog file\n");
+			return EXIT_FAILURE;
+		}
+
 	if (argc == 4 && !strcmp(argv[1], "-d")) {
 		argc -= 2;
 		cvsroot = argv[2];
@@ -1170,7 +1176,6 @@ int main(int argc, char *argv[])
 #endif
 	}
 #ifndef XTEST
-	yyrestart(srv);
 	fprintf(srv, "BEGIN AUTH REQUEST\n"
 		"%s\n"
 		"%s\n"
@@ -1179,8 +1184,14 @@ int main(int argc, char *argv[])
 	fprintf(srv, "Root %s\n", cvsdir);
 	/*fprintf(srv, "Argument micq/m4\n");*/
 	fprintf(srv, "Argument %s\n", argv[1]);
-	fprintf(srv, "rlog\n");
-	fflush(srv);
+	if (rlog_input)
+		yyrestart(rlog_input);
+	else
+	{
+		yyrestart(srv);
+		fprintf(srv, "rlog\n");
+		fflush(srv);
+	}
 	BEGIN SRV0;
 	yy_set_interactive(1);
 	fprintf(stderr, "exit: %d\n", yylex());
