@@ -394,6 +394,11 @@ void begin(char *s, size_t l)
 		fi = fi2 + 1;
 	}
 	strcpy(getq(strlen(p + l0 + 1) + 1), p + l0 + 1);
+	if (!access(p + l0 + 1, R_OK)) {
+		char buffer[1024];
+		snprintf(buffer, sizeof(buffer), "%s.old", p + l0 + 1);
+		rename(p + l0 + 1, buffer);
+	}
 	if (!(rcsfiop = fopen(p + l0 + 1, "w")))
 		return;
 	s[l-1] = '\n';
@@ -992,6 +997,48 @@ static const struct clpair {
 	{ 0     , "# "  }       /* default for unknown suffix; must be last */
 };
 
+static int is_version_number(const char *line)
+{
+	if (*line < '0' || *line > '9')
+		return 0;
+	for (; *line; line++)
+		if (*line != '\n' && *line != '.' &&
+				(*line < '0' || *line > '9'))
+			return 0;
+	return 1;
+}
+
+static int is_done(const char *filename)
+{
+	char buffer[1024], line[1024];
+	FILE *orig;
+	int remaining = rfile.sel;
+
+	snprintf(buffer, sizeof(buffer), "%s.old", filename);
+	orig = fopen(buffer, "rb");
+	if (!orig)
+		return 0;
+
+	if (!fgets(line, sizeof(line), orig) || strncmp(line, "head\t", 5)) {
+		fclose(orig);
+		return 0;
+	}
+
+	while (!feof(orig) && fgets(line, sizeof(line), orig)) {
+		if (!strcmp(line, "desc\n"))
+			break;
+		if (is_version_number(line))
+			remaining--;
+	}
+
+	fclose(orig);
+	if (!remaining)
+		rename(buffer, filename);
+	else
+		unlink(buffer);
+	return !remaining;
+}
+
 void gen()
 {
 	size_t l = strlen(cvsdir);
@@ -1015,6 +1062,8 @@ void gen()
 			? fi2 - fi : sizeof suffix - 1);
 	}
 	fi = rfile.source + l + 1;
+	if (is_done(fi))
+		return;
 	rcsfiop = fopen(fi, "w");
 
 	fprintf(rcsfiop, "head\t%s;\n", rfile.head.num ? rfile.head.num : "");
