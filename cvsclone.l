@@ -828,7 +828,7 @@ void puttree2(struct rev *z, struct rev *x)
 					"Argument --\n"
 					"Argument %.*s\n"
 					"diff", z->num, 
-					fi2 - strrchr(fi, '/') - 1,
+					(int)(fi2 - strrchr(fi, '/') - 1),
 					strrchr(fi, '/') + 1);
 				queue[queuel-1] = '\n';
 			} else
@@ -844,7 +844,7 @@ void puttree2(struct rev *z, struct rev *x)
 				"Argument --\n"
 				"Argument %.*s\n"
 				"diff", z->num, y->num, 
-				fi2 - strrchr(fi, '/') - 1,
+				(int)(fi2 - strrchr(fi, '/') - 1),
 				strrchr(fi, '/') + 1);
 			queue[queuel-1] = '\n';
 			z = y;
@@ -1001,7 +1001,7 @@ void gen()
 	fi = strrchr(rfile.source, '/');
 	sprintf(getq(12 + (fi - rfile.source) + 1), 
 		"Directory .\n%.*s", 
-		fi - rfile.source, rfile.source);
+		(int)(fi - rfile.source), rfile.source);
 	queue[queuel-1] = '\n';
 	fi2 = strrchr(fi, ',');
 	fi = strrchr(fi, '.');
