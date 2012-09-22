@@ -446,7 +446,7 @@ void begin(char *s, size_t l)
 <ATR0>state:\ {id};\ \  rfile.revt->state = getstr(yyleng-10, yytext+7);
 <ATR0>state:\ {id};\n   BEGIN REV3; rfile.revt->state = getstr(yyleng-9, yytext+7);
 <ATR0>lines:\ \+[0-9]+\  BEGIN ATR1; rfile.revt->ladd = atoi(yytext+8);
-<ATR1>-[0-9]+\n         BEGIN REV3; rfile.revt->ldel = atoi(yytext+1);
+<ATR1>-[0-9]+;?\n         BEGIN REV3; rfile.revt->ldel = atoi(yytext+1);
 <ATR1>-[0-9]+;\ \       BEGIN ATR0; rfile.revt->ldel = atoi(yytext+1);
 <ATR0>kopt:\ [^;\n]+;\n BEGIN REV3; rfile.revt->kopt = getstr(yyleng-8, yytext+6);
 <ATR0>kopt:\ [^;\n]+;\ \  rfile.revt->kopt = getstr(yyleng-9, yytext+6);
