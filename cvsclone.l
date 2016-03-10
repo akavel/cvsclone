@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- * 
+ *
  * BUILDING
  *
  * flex cvsclone.l && gcc -Wall -O2 lex.yy.c -o cvsclone
@@ -36,10 +36,10 @@
  * cvsclone -d :pserver:anonymous@cvs.example.org:/var/lib/cvs module
  *
  * DESCRIPTION
- * 
+ *
  * Utility to clone cvs repositories over the cvspserver interface.  Works
  * for anonymous access.
- * 
+ *
  * FEATURES
  *
  * - reads $HOME/.cvspass
@@ -52,14 +52,14 @@
  *
  * - can't enable compression.
  *
- * - reading cvs password from $HOME/.cvspass uses CVSROOT in a 
+ * - reading cvs password from $HOME/.cvspass uses CVSROOT in a
  *   case sensitive way.
  *
- * - rlog format is ambiguous.  If the separators it uses are found inside 
+ * - rlog format is ambiguous.  If the separators it uses are found inside
  *   log messages, possibly followed by lines similar to what rlog
  *   outputs, things can go wrong horribly.
  *
- * - rcs 5.x rlog format does not contain the comment leader.  It is 
+ * - rcs 5.x rlog format does not contain the comment leader.  It is
  *   guessed according to the extension as rcs and CVS do.
  *
  * - uses normal diff format since this is the easiest one that works.
@@ -68,18 +68,18 @@
  *   is that deleted lines are transfered while they don't need to be.
  *   even rdiff has major problems with lines that contain \0, because
  *   of a bug in cvs.
- * 
+ *
  * - does not work incrementally.  That would be much more work if
- *   updating the trunk since the most recent revision had to be 
- *   reconstructed.  Also, the whole history probably had to be transfered 
+ *   updating the trunk since the most recent revision had to be
+ *   reconstructed.  Also, the whole history probably had to be transfered
  *   again, with all log messages.
- * 
+ *
  * - Horrible complexity.  A file with n deltas takes O(n^2) to transfer.
  *
  * - Makes the cvs server really work hard, taking up all processor time.
  *   It should really not be used on public cvs servers, especially
- *   not on a regular basis.  Perhaps it is useful for salvaging 
- *   archive files from projects where only access to anonymous cvs 
+ *   not on a regular basis.  Perhaps it is useful for salvaging
+ *   archive files from projects where only access to anonymous cvs
  *   is available.
  *
  *
@@ -139,9 +139,9 @@ date2   [0-9]+(\/[0-9]{2}){2}\ [0-9]{2}(:[0-9]{2}){2}
 		test: 1.1
 	keyword substitution: kv
 	total revisions: ; selected\ revisions:
-	description: 
+	description:
 
- 
+
 	file()		: trunk(Head) tree(Head)
 			;
 	trunk(p)	:
@@ -238,7 +238,7 @@ void addaccl(char *s)
 		rfile.accl = realloc(rfile.accl, (n+16) * sizeof *rfile.accl);
 		rfile.acct = rfile.accl + n;
 	}
-	
+
 	*rfile.acct++ = s;
 }
 void addtag(char *s)
@@ -250,7 +250,7 @@ void addtag(char *s)
 		rfile.tagl = realloc(rfile.tagl, (n+16) * sizeof *rfile.tagl);
 		rfile.tagt = rfile.tagl + n;
 	}
-	
+
 	rfile.tagt++->item = s;
 }
 void addlck(char *s)
@@ -262,7 +262,7 @@ void addlck(char *s)
 		rfile.lckl = realloc(rfile.lckl, (n+16) * sizeof *rfile.lckl);
 		rfile.lckt = rfile.lckl + n;
 	}
-	
+
 	rfile.lckt++->item = s;
 }
 void setdate(unsigned long n, char *s, char *t)
@@ -282,22 +282,22 @@ void setdate(unsigned long n, char *s, char *t)
 	}
 	rfile.revt->date = timegm(&tm);
 #if 0
-	printf("setdate: %.*s, %.5s --> %s", (int)n, s, t, 
+	printf("setdate: %.*s, %.5s --> %s", (int)n, s, t,
 		ctime(&rfile.revt->date));
 #endif
-	
+
 }
 void addrev(char *s)
 {
 	if (!rfile.revt)
 		rfile.revt = rfile.revl;
-	else 
+	else
 		rfile.revt++;
 	assert(rfile.revl && rfile.revt < rfile.revl + rfile.sel);
 	/* assert(rfile.revt - rfile.revl < rfile.n) */
 	rfile.revt->num = s;
 	rfile.revt->author = rfile.revt->state
-		= rfile.revt->comment = rfile.revt->commitid 
+		= rfile.revt->comment = rfile.revt->commitid
 		= rfile.revt->kopt = rfile.revt->server
 		= rfile.revt->onum = rfile.revt->log = NULL;
 	rfile.revt->next = rfile.revt->branch = rfile.revt->sub = NULL;
@@ -315,7 +315,7 @@ char *cvsroot, *cvspass, *cvsuser, *cvshost, *cvsdir;
 int chkroot(char *s, size_t le, int s1)
 {
 	size_t l = strlen(cvsroot);
-	
+
 	if (s1) {
 		char *x, *y;
 #if 0
@@ -332,18 +332,18 @@ int chkroot(char *s, size_t le, int s1)
 		y = cvsroot + (x - s) + 1;
 		while (isdigit(*++x))
 			continue;
-		if (strncmp(y, x, l - (y - cvsroot)) 
+		if (strncmp(y, x, l - (y - cvsroot))
 		 || x[l - (y - cvsroot)] != ' ')
 			return 0;
 		l += x - s - (y - cvsroot);
 #if 0
-		fprintf(stderr, "l=%u(%d, %u), s=%s, cvsroot=%s, x=%s, y=%s\n", 
+		fprintf(stderr, "l=%u(%d, %u), s=%s, cvsroot=%s, x=%s, y=%s\n",
 			l, x - s - (y - cvsroot), le,
 			s, cvsroot, x, y);
 #endif
 	} else if (strncmp(cvsroot, s, l) || s[l] != ' ')
 		return 0;
-	
+
 	cvsroot = strncpy(realloc(cvsroot, le + 1), s, le);
 	cvsroot[l] = cvsroot[le+1] = '\0';
 	cvspass = cvsroot + l + 1;
@@ -416,11 +416,11 @@ void begin(char *s, size_t l)
 <HDR0>head:\n           rfile.head.num = NULL;
 <HDR0>branch:\n         rfile.branch.num = NULL;
 <HDR0>branch:\ {num}\n  rfile.branch.num = getstr(yyleng-9, yytext+8);
-<HDR0>locks:\ strict\n  BEGIN LCKL0; rfile.strict = 1; 
-<HDR0>locks:\n          BEGIN LCKL0; rfile.strict = 0; 
+<HDR0>locks:\ strict\n  BEGIN LCKL0; rfile.strict = 1;
+<HDR0>locks:\n          BEGIN LCKL0; rfile.strict = 0;
 <HDR0>access\ list:\n   BEGIN ACCL0;
 <HDR0>symbolic\ names:\n BEGIN TAGL0;
-<HDR0>keyword\ substitution:\ .*\n rfile.ksub = getstr(yyleng-23, yytext+22); 
+<HDR0>keyword\ substitution:\ .*\n rfile.ksub = getstr(yyleng-23, yytext+22);
 <HDR0>comment\ leader:\ \".*\"\n rfile.leader = getstr(yyleng-19, yytext+17);
 <HDR0>total\ revisions:\ [0-9]+;\t BEGIN HDR1; rfile.tot = atoi(yytext+17);
 <HDR1>selected\ revisions:\ [0-9]+\n BEGIN HDR0; initrev(atoi(yytext+20));
@@ -431,10 +431,10 @@ void begin(char *s, size_t l)
 <DESC>.*\n              if (!rfile.descr) rfile.descr = yytext;
 <ACCL0>\t{id}\n         addaccl(getstr(yyleng-2, yytext+1));
 <ACCL0>""/[^\t]         BEGIN HDR0;
-<TAGL0>\t{sym}:\        BEGIN TAGL1; addtag(getstr(yyleng-3, yytext+1)); 
+<TAGL0>\t{sym}:\        BEGIN TAGL1; addtag(getstr(yyleng-3, yytext+1));
 <TAGL0>""/[^\t]         BEGIN HDR0;
-<TAGL1>{num}\n          BEGIN TAGL0; rfile.tagt[-1].rev.num = getstr(yyleng-1, yytext); 
-<LCKL0>\t{id}:\         BEGIN LCKL1; addlck(getstr(yyleng-3, yytext+1)); 
+<TAGL1>{num}\n          BEGIN TAGL0; rfile.tagt[-1].rev.num = getstr(yyleng-1, yytext);
+<LCKL0>\t{id}:\         BEGIN LCKL1; addlck(getstr(yyleng-3, yytext+1));
 <LCKL0>""/[^\t]         BEGIN HDR0;
 <LCKL1>{num}\n          BEGIN LCKL0; rfile.lckt[-1].rev.num = getstr(yyleng-1, yytext);
 <REV0>revision\ {num}\n BEGIN REV2; addrev(getstr(yyleng-10, yytext+9));
@@ -450,8 +450,10 @@ void begin(char *s, size_t l)
 <ATR1>-[0-9]+;\ \       BEGIN ATR0; rfile.revt->ldel = atoi(yytext+1);
 <ATR0>kopt:\ [^;\n]+;\n BEGIN REV3; rfile.revt->kopt = getstr(yyleng-8, yytext+6);
 <ATR0>kopt:\ [^;\n]+;\ \  rfile.revt->kopt = getstr(yyleng-9, yytext+6);
-<ATR0>commitid:\ [0-9a-f]{16};\ \  rfile.revt->commitid = getstr(16, yytext+10);
-<ATR0>commitid:\ [0-9a-f]{16};\n BEGIN REV3; rfile.revt->commitid = getstr(16, yytext+10);
+<ATR0>commitid:\ [0-9a-f]{10,20};\ \  rfile.revt->commitid = getstr(yyleng-11, yytext+10);
+<ATR0>commitid:\ [0-9a-f]{10,20};\n BEGIN REV3; rfile.revt->commitid = getstr(yyleng-11, yytext+10);
+<ATR0>filename:\ [^;]+;\n  BEGIN REV3; rfile.revt->ldel = atoi(yytext+1);
+<ATR0>filename:\ [^;]+;\ \  BEGIN ATR0; rfile.revt->ldel = atoi(yytext+1);
 <ATR0>mergepoint:\ {num};\n BEGIN REV3; /* getstr(yyleng-14, yytext+12); */
 <REV3>branches:/.*\n    BEGIN RLST;
 <REV3,REV4>={77}\n      BEGIN FEND; *yytext = '\0'; if (!rfile.revt->log) rfile.revt->log = yytext; if (rfile.revt) rfile.revt++;
@@ -586,7 +588,7 @@ char *strfix(char *s)
 	       return s;
 	if (s[l-1] == '\n')
 		s[l-1] = '\0';
-	return s;	
+	return s;
 }
 FILE *srv, *rlog_input;
 
@@ -654,7 +656,7 @@ struct rev *range(struct rev *begin)
 	else
 		bre++;
 	/*fprintf(stderr, "brb: %s, n: %u\n", brb, bre - brb);*/
-	while (begin < rfile.revt 
+	while (begin < rfile.revt
 	    && (bre - brb ? !strncmp(begin->num, brb, bre - brb)
 	          && !strchr(begin->num + (bre - brb), '.')
 	        : strchr(begin->num, '.') == strrchr(begin->num, '.')))
@@ -666,13 +668,13 @@ struct rev *range(struct rev *begin)
 /*
  :
 1.4
- |  
+ |
 1.3 | next
  |  v
 1.2   branch
- |   ------>      
+ |   ------>
 1.1--1.1.1.1--1.1.1.1.1.1 - -
-        |   
+        |
      1.1.2.1 | sub
         |    v
      1.1.3.1
@@ -684,10 +686,10 @@ v               -                                /1.2
 *               | -                              |1.1*
                 : :                              : F B
         *       | |             ->               | / <1.1.2.1*
-                : :             :                : : 
+                : :             :                : :
         *       | |       -     |                | | /1.1.1.2
         ^       | ->    - |     -                | | |1.1.1.1*
-                :       : :                      : : : F B 
+                :       : :                      : : : F B
         *       |       | |                      | | | / /1.1.1.2.1.2
         ^       |       | ->                     | | | \ \1.1.1.2.1.1*
                 :       :                        : : : F B
@@ -724,7 +726,7 @@ struct rev *branch(struct rev **b)
 	for (x = *b; x < e - 1; x++)
 		x[1].next = x;
 	/* As for the trunk, for each branch revision, a forest can follow.
-	 * However here the forests in decreasing order match the order 
+	 * However here the forests in decreasing order match the order
 	 * of the branch revisions.
 	 */
 	while (e < rfile.revt) {
@@ -749,7 +751,7 @@ struct rev *trunk(struct rev *b)
 		x->next = x + 1;
 	x->next = NULL;
 	/* For each trunk revision, a forest can follow.
-	 * The forests are in increasing order, in contrast to the 
+	 * The forests are in increasing order, in contrast to the
 	 * trunk revisions, which are in decreasing order.
 	 */
 	while (e < rfile.revt) {
@@ -783,14 +785,14 @@ void puttree(struct rev *x, FILE *stream)
 		tm = gmtime(&y->date);
 		fprintf(stream, "%s\n", y->num);
 		fprintf(stream, "date\t%d.%02d.%02d.%02d.%02d.%02d;"
-			"\tauthor %s;\tstate %s;\n", 
+			"\tauthor %s;\tstate %s;\n",
 			tm->tm_year > 99 ? tm->tm_year + 1900 : tm->tm_year,
 			tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min,
 			tm->tm_sec, y->author, y->state);
 		fprintf(stream, "branches");
 		for (z = y->branch; z; z = z->sub)
 			fprintf(stream, "\n\t%s", z->num);
-			
+
 		fprintf(stream, ";\n");
 		fprintf(stream, "next\t%s;\n", y->next ? y->next->num : "");
 		fprintf(stream, "\n");
@@ -822,18 +824,18 @@ void puttree2(struct rev *z, struct rev *x)
 	struct rev *y;
 	for (y = x; y; y = y->next) {
 		void putfor2(struct rev *z, struct rev *x);
-		
+
 		if (!z) {
 			for (z = y; z && !strcmp(z->state, "dead"); z = z->next)
 				continue;
 			if (z) {
 				sprintf(getq(10*4+5+2+3+2+strlen(z->num)
-					+ (fi2 - strrchr(fi, '/')) - 1), 
+					+ (fi2 - strrchr(fi, '/')) - 1),
 					"Argument -r%s\n"
 					"Argument -aN\n"
 					"Argument --\n"
 					"Argument %.*s\n"
-					"diff", z->num, 
+					"diff", z->num,
 					(int)(fi2 - strrchr(fi, '/') - 1),
 					strrchr(fi, '/') + 1);
 				queue[queuel-1] = '\n';
@@ -843,13 +845,13 @@ void puttree2(struct rev *z, struct rev *x)
 		} else if (strcmp(y->state, "dead") && z != y) {
 			sprintf(getq(10*5+5+2+2+2+2+strlen(z->num)
 				+ strlen(y->num)
-				+ (fi2 - strrchr(fi, '/'))), 
+				+ (fi2 - strrchr(fi, '/'))),
 				"Argument -r%s\n"
 				"Argument -r%s\n"
 				"Argument -aN\n"
 				"Argument --\n"
 				"Argument %.*s\n"
-				"diff", z->num, y->num, 
+				"diff", z->num, y->num,
 				(int)(fi2 - strrchr(fi, '/') - 1),
 				strrchr(fi, '/') + 1);
 			queue[queuel-1] = '\n';
@@ -871,12 +873,12 @@ void puttree3(struct rev *z, struct rev *x)
 	for (y = x; y; y = y->next) {
 		void putfor3(struct rev *z, struct rev *x);
 		fprintf(stderr, "%s ", y->num);
-		
+
 		stats.ndeltas++;
 		fprintf(rcsfiop, "\n\n%s\nlog\n", y->num);
 		rcsfputs(y->log, rcsfiop);
 		fprintf(rcsfiop, "\ntext\n@");
-		
+
 		if (!z) {
 			for (z = y; z && !strcmp(z->state, "dead"); z = z->next)
 				continue;
@@ -911,18 +913,18 @@ static const struct clpair {
 	char *suffix, *comlead;
 } cltbl[] = {
 	{ "a"   , "-- " },      /* Ada */
-	{ "ada" , "-- " },      
-	{ "adb" , "-- " },      
-	{ "ads" , "-- " },      
+	{ "ada" , "-- " },
+	{ "adb" , "-- " },
+	{ "ads" , "-- " },
 	{ "asm" , ";; " },      /* assembler (MS-DOS) */
 	{ "bas" , "' "  },      /* Visual Basic code */
 	{ "bat" , ":: " },      /* batch (MS-DOS) */
 	{ "body", "-- " },      /* Ada */
 	{ "c"   , " * " },      /* C */
 	{ "c++" , "// " },      /* C++ in all its infinite guises */
-	{ "cc"  , "// " },      
-	{ "cpp" , "// " },      
-	{ "cxx" , "// " },      
+	{ "cc"  , "// " },
+	{ "cpp" , "// " },
+	{ "cxx" , "// " },
 	{ "cl"  , ";;; "},      /* Common Lisp */
 	{ "cmd" , ":: " },      /* command (OS/2) */
 	{ "cmf" , "c "  },      /* CM Fortran */
@@ -934,12 +936,12 @@ static const struct clpair {
 	{ "epsi", "% "  },      /* encapsulated postscript */
 	{ "el"  , "; "  },      /* Emacs Lisp */
 	{ "f"   , "c "  },      /* Fortran */
-	{ "for" , "c "  },      
+	{ "for" , "c "  },
 	{ "frm" , "' "  },      /* Visual Basic form */
 	{ "h"   , " * " },      /* C-header */
-	{ "hh"  , "// " },      
+	{ "hh"  , "// " },
 	{ "hpp" , "// " },      /* C++ header */
-	{ "hxx" , "// " },      
+	{ "hxx" , "// " },
 	{ "in"  , "# "  },      /* for Makefile.in */
 	{ "l"   , " * " },      /* lex (NOTE: franzlisp disagrees) */
 	{ "lisp", ";;; "},      /* Lucid Lisp */
@@ -953,16 +955,16 @@ static const struct clpair {
 	{ "ms"  , ".\\\" "},    /* troff -ms */
 	{ "man" , ".\\\" "},    /* man-macros   t/nroff */
 	{ "1"   , ".\\\" "},    /* feeble attempt at man pages... */
-	{ "2"   , ".\\\" "},    
-	{ "3"   , ".\\\" "},    
-	{ "4"   , ".\\\" "},    
-	{ "5"   , ".\\\" "},    
-	{ "6"   , ".\\\" "},    
-	{ "7"   , ".\\\" "},    
-	{ "8"   , ".\\\" "},    
-	{ "9"   , ".\\\" "},    
+	{ "2"   , ".\\\" "},
+	{ "3"   , ".\\\" "},
+	{ "4"   , ".\\\" "},
+	{ "5"   , ".\\\" "},
+	{ "6"   , ".\\\" "},
+	{ "7"   , ".\\\" "},
+	{ "8"   , ".\\\" "},
+	{ "9"   , ".\\\" "},
 	{ "p"   , " * " },      /* Pascal */
-	{ "pas" , " * " },      
+	{ "pas" , " * " },
 	{ "pl"  , "# "  },      /* perl (conflict with Prolog) */
 	{ "ps"  , "% "  },      /* PostScript */
 	{ "psw" , "% "  },      /* postscript wrap */
@@ -1055,8 +1057,8 @@ void gen()
 	struct rpair *j;
 	fprintf(stderr, "%s\n", rfile.source);
 	fi = strrchr(rfile.source, '/');
-	sprintf(getq(12 + (fi - rfile.source) + 1), 
-		"Directory .\n%.*s", 
+	sprintf(getq(12 + (fi - rfile.source) + 1),
+		"Directory .\n%.*s",
 		(int)(fi - rfile.source), rfile.source);
 	queue[queuel-1] = '\n';
 	fi2 = strrchr(fi, ',');
@@ -1067,7 +1069,7 @@ void gen()
 		/* If the suffix length is greater than four characters,
 		 * it cannot match, since it copies five of them.
 		 */
-		strncpy(suffix, fi, fi2 - fi < sizeof suffix - 1 
+		strncpy(suffix, fi, fi2 - fi < sizeof suffix - 1
 			? fi2 - fi : sizeof suffix - 1);
 	}
 	fi = rfile.source + l + 1;
@@ -1151,8 +1153,8 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	cvsroot = strdup(cvsroot);
-	passfile = (home = getenv("HOME")) 
-		? strcat(strcpy(malloc(strlen(home) 
+	passfile = (home = getenv("HOME"))
+		? strcat(strcpy(malloc(strlen(home)
 			+ sizeof "/.cvspass"), home), "/.cvspass")
 		: strcpy(malloc(sizeof ".cvspass"), ".cvspass");
 	BEGIN PWF0;
@@ -1227,7 +1229,7 @@ int main(int argc, char *argv[])
 			free(rfile.accl);
 		if (rfile.revl)
 			free(rfile.revl);
-		
+
 		free(buf);
 	}
 	if (fn2)
@@ -1240,4 +1242,3 @@ int main(int argc, char *argv[])
 #endif
 	return EXIT_SUCCESS;
 }
-
