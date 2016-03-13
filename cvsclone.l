@@ -450,8 +450,10 @@ void begin(char *s, size_t l)
 <ATR1>-[0-9]+;\ \       BEGIN ATR0; rfile.revt->ldel = atoi(yytext+1);
 <ATR0>kopt:\ [^;\n]+;\n BEGIN REV3; rfile.revt->kopt = getstr(yyleng-8, yytext+6);
 <ATR0>kopt:\ [^;\n]+;\ \  rfile.revt->kopt = getstr(yyleng-9, yytext+6);
-<ATR0>commitid:\ [0-9a-f]{16};\ \  rfile.revt->commitid = getstr(16, yytext+10);
-<ATR0>commitid:\ [0-9a-f]{16};\n BEGIN REV3; rfile.revt->commitid = getstr(16, yytext+10);
+<ATR0>commitid:\ [0-9a-f]{10,20};\ \  rfile.revt->commitid = getstr(yyleng-11, yytext+10);
+<ATR0>commitid:\ [0-9a-f]{10,20};\n BEGIN REV3; rfile.revt->commitid = getstr(yyleng-11, yytext+10);
+<ATR0>filename:\ [^;]+;\n  BEGIN REV3; rfile.revt->ldel = atoi(yytext+1);
+<ATR0>filename:\ [^;]+;\ \  BEGIN ATR0; rfile.revt->ldel = atoi(yytext+1);
 <ATR0>mergepoint:\ {num};\n BEGIN REV3; /* getstr(yyleng-14, yytext+12); */
 <REV3>branches:/.*\n    BEGIN RLST;
 <REV3,REV4>={77}\n      BEGIN FEND; *yytext = '\0'; if (!rfile.revt->log) rfile.revt->log = yytext; if (rfile.revt) rfile.revt++;

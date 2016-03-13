@@ -1,2 +1,4 @@
 /lex.yy.c
 /cvsclone
+
+*.dSYM
